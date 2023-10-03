@@ -1,5 +1,6 @@
 # IP-23_Strassenfeger
 
+Adafruit Motor Shield V2 - Instructions [here](https://learn.adafruit.com/adafruit-motor-shield-v2-for-arduino)
 
 # DC Motor
 
