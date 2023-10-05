@@ -3,8 +3,10 @@
 #include "utility/Adafruit_MS_PWMServoDriver.h"
 
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
-Adafruit_DCMotor *myMotor2 = AFMS.getMotor(2); // 1,2 ... -> M1,M2 ... on board
-Adafruit_DCMotor *myMotor3 = AFMS.getMotor(3);
+Adafruit_DCMotor *motorR = AFMS.getMotor(2); // 1,2 ... -> M1,M2 ... on board
+Adafruit_DCMotor *motorL = AFMS.getMotor(3);
+
+
 
 void circle() { // 2 is left, 3 is right
   for(int i = 0;i<4;i++) {
@@ -19,6 +21,13 @@ void circle() { // 2 is left, 3 is right
     myMotor3->setSpeed(50);
     delay(1000);
   }
+}
+
+void forwards() {
+    myMotor2->setSpeed(200);
+    myMotor2->run(FORWARD);
+    myMotor3->setSpeed(200);
+    myMotor3->run(FORWARD);
 }
 
 void setup() {
