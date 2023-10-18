@@ -2,6 +2,59 @@
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_MS_PWMServoDriver.h"
 
+void right_Track_to_Can() {
+  motorR->run(BACKWARD);
+  motorL->run(BACKWARD);
+  motorR->setSpeed(50);
+  motorL->setSpeed(50);
+  delay(750);
+  motorR->run(BACKWARD);
+  motorL->run(FORWARD);
+  delay(750);
+  motorR->run(FORWARD);
+  motorL->run(FORWARD);
+  delay(500);
+  motorR->run(RELEASE);
+  motorL->run(RELEASE);
+}
+void right_Can_to_Track() {
+  motorR->run(BACKWARD);
+  motorL->run(BACKWARD);
+  delay(750);
+  motorR->run(FORWARD);
+  motorL->run(BACKWARD);
+  delay(700);
+  motorR->run(RELEASE);
+  motorL->run(RELEASE);
+}
+
+void left_Track_to_Can() {
+  motorR->run(BACKWARD);
+  motorL->run(BACKWARD);
+  motorR->setSpeed(50);
+  motorL->setSpeed(50);
+  delay(750);
+  motorR->run(FORWARD);
+  motorL->run(BACKWARD);
+  delay(750);
+  motorR->run(FORWARD);
+  motorL->run(FORWARD);
+  delay(500);
+  motorR->run(RELEASE);
+  motorL->run(RELEASE);
+}
+
+void left_Can_to_Track() {
+  motorR->run(BACKWARD);
+  motorL->run(BACKWARD);
+  delay(750);
+  motorR->run(BACKWARD);
+  motorL->run(FORWARD);
+  delay(750);
+  motorR->run(RELEASE);
+  motorL->run(RELEASE);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////
 // Set pin
 #define R_S A0   // Infrared sensor Right
@@ -182,6 +235,8 @@ void task_2() {
   motorL->setSpeed(0);
   motorR->setSpeed(0);
   delay(2000);
+
+  
 
   motorL->run(FORWARD);
   motorR->run(FORWARD);
