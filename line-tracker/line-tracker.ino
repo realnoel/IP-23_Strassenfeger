@@ -1,3 +1,7 @@
+//https://towardinfinity.medium.com/pid-for-line-follower-11deb3a1a643
+//https://projecthub.arduino.cc/anova9347/line-follower-robot-with-pid-controller-01813f
+
+
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_MS_PWMServoDriver.h"
@@ -12,11 +16,10 @@
 // Set speed
 #define SLOW_SPEED 45
 //#define MEDIUM_SPEED 55
-#define FAST_SPEED 150
+#define FAST_SPEED 60 // FAST_SPEED = 240
 
 int defaultSpeed = 100;
 int stoptime = 0;
-int can_counter = 0;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // PID Controller
@@ -26,12 +29,12 @@ int can_counter = 0;
 // Start with kp=1 and decrease value to stable system
 //Then increase ki and kd if needed
 double kp = 0.56;    // Proportional gain
-double ki = 0.0027;  // Integral gain
-double kd = 0;    // Derivative gain *************************** possible delete
+double ki = 0.05;  // Integral gain
+double kd = 0;     // Derivative gain *************************** possible delete
 
 //Initialize PID components to 0
-double P = 0;  // Proportional component of the control output
-double I = 0;  // Integral component of the control output
+double P = 0.1;  // Proportional component of the control output
+double I = 0.01;  // Integral component of the control output
 double D = 0;  // Derivative component of the control output
 
 int error;
@@ -56,58 +59,6 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_DCMotor *motorR = AFMS.getMotor(2);
 Adafruit_DCMotor *motorL = AFMS.getMotor(1);
 
-  void right_Track_to_Can() {
-    motorR->run(BACKWARD);
-    motorL->run(BACKWARD);
-    motorR->setSpeed(50);
-    motorL->setSpeed(50);
-    delay(750);
-    motorR->run(BACKWARD);
-    motorL->run(FORWARD);
-    delay(750);
-    motorR->run(FORWARD);
-    motorL->run(FORWARD);
-    delay(500);
-    motorR->run(RELEASE);
-    motorL->run(RELEASE);
-  }
-  void right_Can_to_Track() {
-    motorR->run(BACKWARD);
-    motorL->run(BACKWARD);
-    delay(750);
-    motorR->run(FORWARD);
-    motorL->run(BACKWARD);
-    delay(700);
-    motorR->run(RELEASE);
-    motorL->run(RELEASE);
-  }
-
-  void left_Track_to_Can() {
-    motorR->run(BACKWARD);
-    motorL->run(BACKWARD);
-    motorR->setSpeed(50);
-    motorL->setSpeed(50);
-    delay(750);
-    motorR->run(FORWARD);
-    motorL->run(BACKWARD);
-    delay(750);
-    motorR->run(FORWARD);
-    motorL->run(FORWARD);
-    delay(500);
-    motorR->run(RELEASE);
-    motorL->run(RELEASE);
-  }
-
-  void left_Can_to_Track() {
-    motorR->run(BACKWARD);
-    motorL->run(BACKWARD);
-    delay(750);
-    motorR->run(BACKWARD);
-    motorL->run(FORWARD);
-    delay(750);
-    motorR->run(RELEASE);
-    motorL->run(RELEASE);
-  }
 
 // Function to get the error from the line-following sensors (0-2).
 int getError() {
@@ -213,23 +164,11 @@ void task_1() {
   //stopped = true;
   //TO DO
   // Obstacle detected, stop and handle appropriately
-  can_counter+=1;
   motorL->run(BACKWARD);
   motorR->run(BACKWARD);
   motorL->setSpeed(0);
   motorR->setSpeed(0);
   delay(500);
-  
-  if(can_counter%2==1) {
-    left_Track_to_Can();
-    delay(1000);
-    left_Can_to_Track();
-  }
-  else {
-    right_Track_to_Can();
-    delay(1000);
-    right_Can_to_Track();
-  }
 
   motorL->run(FORWARD);
   motorR->run(FORWARD);
