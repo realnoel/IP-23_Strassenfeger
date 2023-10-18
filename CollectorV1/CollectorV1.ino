@@ -12,7 +12,7 @@
 // Set speed
 #define SLOW_SPEED 45
 //#define MEDIUM_SPEED 55
-#define FAST_SPEED 150
+#define FAST_SPEED 55
 
 int defaultSpeed = 100;
 int stoptime = 0;
@@ -64,20 +64,20 @@ Adafruit_DCMotor *motorL = AFMS.getMotor(1);
     delay(750);
     motorR->run(BACKWARD);
     motorL->run(FORWARD);
-    delay(750);
+    delay(400);
     motorR->run(FORWARD);
     motorL->run(FORWARD);
-    delay(500);
+    delay(300);
     motorR->run(RELEASE);
     motorL->run(RELEASE);
   }
   void right_Can_to_Track() {
     motorR->run(BACKWARD);
     motorL->run(BACKWARD);
-    delay(750);
+    delay(300);
     motorR->run(FORWARD);
     motorL->run(BACKWARD);
-    delay(700);
+    delay(400);
     motorR->run(RELEASE);
     motorL->run(RELEASE);
   }
@@ -90,10 +90,10 @@ Adafruit_DCMotor *motorL = AFMS.getMotor(1);
     delay(750);
     motorR->run(FORWARD);
     motorL->run(BACKWARD);
-    delay(750);
+    delay(400);
     motorR->run(FORWARD);
     motorL->run(FORWARD);
-    delay(500);
+    delay(300);
     motorR->run(RELEASE);
     motorL->run(RELEASE);
   }
@@ -101,10 +101,18 @@ Adafruit_DCMotor *motorL = AFMS.getMotor(1);
   void left_Can_to_Track() {
     motorR->run(BACKWARD);
     motorL->run(BACKWARD);
-    delay(750);
+    delay(300);
     motorR->run(BACKWARD);
     motorL->run(FORWARD);
-    delay(750);
+    delay(400);
+    motorR->run(RELEASE);
+    motorL->run(RELEASE);
+  }
+
+  void sprint() {
+    motorR->run(FORWARD);
+    motorL->run(FORWARD);
+    delay(800);
     motorR->run(RELEASE);
     motorL->run(RELEASE);
   }
@@ -220,22 +228,24 @@ void task_1() {
   motorR->setSpeed(0);
   delay(500);
   
-  if(can_counter%2==1) {
+  if(can_counter%2==0) {
     left_Track_to_Can();
     delay(1000);
     left_Can_to_Track();
+
   }
   else {
     right_Track_to_Can();
     delay(1000);
     right_Can_to_Track();
   }
+  sprint();
 
   motorL->run(FORWARD);
   motorR->run(FORWARD);
   motorL->setSpeed(SLOW_SPEED);
   motorR->setSpeed(SLOW_SPEED);
-  delay(80);
+  delay(200);
 }
 
 void task_2() {
