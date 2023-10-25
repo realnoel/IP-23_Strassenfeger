@@ -1,6 +1,7 @@
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_MS_PWMServoDriver.h"
+#include <Servo.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // Set pin
@@ -18,6 +19,11 @@ int defaultSpeed = 100;
 int stoptime = 0;
 int can_counter = 0;
 
+// Servo code
+int min_pos = 60;
+int max_pos = 180;
+int pos = 0;
+
 ////////////////////////////////////////////////////////////////////////////////////////
 // PID Controller
 
@@ -25,8 +31,8 @@ int can_counter = 0;
 // Tuning parameter:
 // Start with kp=1 and decrease value to stable system
 //Then increase ki and kd if needed
-double kp = 0.56;    // Proportional gain
-double ki = 0.0027;  // Integral gain
+double kp = 0.29;    // Proportional gain
+double ki = 0.027;  // Integral gain
 double kd = 0;    // Derivative gain *************************** possible delete
 
 //Initialize PID components to 0
@@ -55,6 +61,26 @@ int rightSpeed = 0;
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_DCMotor *motorR = AFMS.getMotor(2);
 Adafruit_DCMotor *motorL = AFMS.getMotor(1);
+Servo myservo;
+
+
+  void take_trash() {
+    for (pos = min_pos; pos <= max_pos; pos += 1) { // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);                       // waits 15ms for the servo to reach the position
+    }
+  }
+  void release_trash() {
+     for (pos = max_pos; pos >= min_pos; pos -= 1) { // goes from 180 degrees to 0 degrees
+      myservo.write(pos);              // tell servo to go to position in variable 'pos'
+      delay(15);                       // waits 15ms for the servo to reach the position
+    }
+  }
+
+  // void shake_trash() {
+  //   return 0;
+  // }
 
   void right_Track_to_Can() {
     motorR->run(BACKWARD);
@@ -231,11 +257,19 @@ void task_1() {
   if(can_counter%2==0) {
     left_Track_to_Can();
     delay(1000);
+    take_trash();
+    delay(1000);
+    release_trash();
+    delay(1000);
     left_Can_to_Track();
 
   }
   else {
     right_Track_to_Can();
+    delay(1000);
+    take_trash();
+    delay(1000);
+    release_trash();
     delay(1000);
     right_Can_to_Track();
   }
@@ -293,6 +327,15 @@ void setup() {
   AFMS.begin();
   motorR->setSpeed(defaultSpeed);
   motorL->setSpeed(defaultSpeed);
+
+  myservo.attach(10);
+
+  // Start position servo
+  for (pos = 30; pos >= 90; pos += 1) { // goes from 180 degrees to 0 degrees
+      myservo.write(pos);              // tell servo to go to position in variable 'pos'
+      delay(15);                       // waits 15ms for the servo to reach the position
+    }
+  delay(1000);
 }
 
 void loop() {

@@ -1,7 +1,3 @@
-//https://towardinfinity.medium.com/pid-for-line-follower-11deb3a1a643
-//https://projecthub.arduino.cc/anova9347/line-follower-robot-with-pid-controller-01813f
-
-
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_MS_PWMServoDriver.h"
