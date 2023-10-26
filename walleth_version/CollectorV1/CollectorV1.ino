@@ -61,20 +61,19 @@ int rightSpeed = 0;
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_DCMotor *motorR = AFMS.getMotor(2);
 Adafruit_DCMotor *motorL = AFMS.getMotor(1);
-Servo myservo1;
-Servo myservo2;
+Servo myservo;
 
 
   void take_trash() {
     for (pos = min_pos; pos <= max_pos; pos += 1) { // goes from 0 degrees to 180 degrees
     // in steps of 1 degree
-    myservo1.write(pos);              // tell servo to go to position in variable 'pos'
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
     delay(15);                       // waits 15ms for the servo to reach the position
     }
   }
   void release_trash() {
      for (pos = max_pos; pos >= min_pos; pos -= 1) { // goes from 180 degrees to 0 degrees
-      myservo1.write(pos);              // tell servo to go to position in variable 'pos'
+      myservo.write(pos);              // tell servo to go to position in variable 'pos'
       delay(15);                       // waits 15ms for the servo to reach the position
     }
   }
@@ -329,12 +328,11 @@ void setup() {
   motorR->setSpeed(defaultSpeed);
   motorL->setSpeed(defaultSpeed);
 
-  myservo1.attach(10);
-  myservo2.attach(9);
+  myservo.attach(10);
 
   // Start position servo
   for (pos = 30; pos >= 90; pos += 1) { // goes from 180 degrees to 0 degrees
-      myservo1.write(pos);              // tell servo to go to position in variable 'pos'
+      myservo.write(pos);              // tell servo to go to position in variable 'pos'
       delay(15);                       // waits 15ms for the servo to reach the position
     }
   delay(1000);
