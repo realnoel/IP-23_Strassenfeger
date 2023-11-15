@@ -9,9 +9,6 @@ Adafruit_DCMotor *motorArm = AFMS.getMotor(3);
 
 Servo servoArm;
 
-int min_pos = 0;
-int max_pos = 110;
-
 void arm_down(Servo servo, int min_pos, int max_pos)
 {
   for (int pos = min_pos; pos <= max_pos; pos += 1)
@@ -62,9 +59,9 @@ void full_arm_movement(Adafruit_DCMotor *motor, Servo servo, int min_pos, int ma
 }
 
 void initalize_arm(Servo servo, Adafruit_DCMotor *motor) {
-  //angleCurrent.println(servo.read());
+  Serial.angleCurrent(servo.read());
   arm_down(servo, min_pos, servo.read());
-  //angleCurrent.println(servo.read());
+  Serial.angleCurrent(servo.read());
   Serial.write("Arm in setup position\n");
   trash_release(motor);
   Serial.write("Arm open in setup position\n");
@@ -72,8 +69,8 @@ void initalize_arm(Servo servo, Adafruit_DCMotor *motor) {
 
 void setup()
 {
-  //beginCommand.begin(4800);
-  //angleCurrent.begin(4800);
+  Serial.beginCommand(9600);
+  Serial.angleCurrent(4800);
 
   AFMS.begin();
   servoArm.attach(9);
@@ -84,5 +81,16 @@ void setup()
 
 void loop()
 {
-  full_arm_movement(motorArm, servoArm, min_pos, max_pos);
+  Serial.write("Grap arm\n");
+  trash_grap(motorArm);
+  delay(1000);
+  Serial.write("Arm up\n");
+  arm_up(servoArm, min_pos, max_pos);
+  delay(1000);
+  Serial.write("Arm down\n");
+  arm_down(servoArm, min_pos, max_pos);
+  delay(1000);
+  Serial.write("Release Arm\n");
+  trash_release(motorArm);
+  delay(1000);
 }
