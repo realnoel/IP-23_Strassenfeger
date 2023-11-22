@@ -72,6 +72,7 @@ Adafruit_DCMotor *motorL = AFMS.getMotor(1);
 Adafruit_DCMotor *motorArm = AFMS.getMotor(3);
 
 Servo servoArm;
+int measurment_position_degree = 50;
 
 void arm_down(Servo servo, int min_pos, int max_pos)
 {
@@ -122,6 +123,11 @@ void initalize_arm(Servo servo, Adafruit_DCMotor *motor)
 {
     arm_down(servo, min_pos, servo.read());
     trash_release(motor);
+}
+
+void measure_position_arm(Servo servo, Adafruit_DCMotor *motor)
+{
+
 }
 
 void right_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
@@ -177,15 +183,6 @@ void left_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
     motorR->run(BACKWARD);
     motorL->run(FORWARD);
     delay(330);
-    motorR->run(RELEASE);
-    motorL->run(RELEASE);
-}
-
-void sprint(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
-{
-    motorR->run(FORWARD);
-    motorL->run(FORWARD);
-    delay(800);
     motorR->run(RELEASE);
     motorL->run(RELEASE);
 }
@@ -415,7 +412,7 @@ void setup()
 
 void loop()
 {
-    
+
     lastError = error;
     error = getError();
 
