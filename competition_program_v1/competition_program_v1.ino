@@ -13,13 +13,15 @@
 // Set speed
 #define SLOW_SPEED 45
 // #define MEDIUM_SPEED 55
-#define FAST_SPEED 55
+#define FAST_SPEED 50
 
 // Track 0 left - straight, 1 right - straight, 2 left - curve, 3 right - curve
 int competition_track[] = {0, 1, 0, 1, 3, 0, 1, 0, 3, 2, 2, 3, 2, 0, 1, 0, 3, 2, 3};
+int test_track[] = {};
 
 // Track 0 left - straight, 1 right - straight
 int competition_track_simple[] = {0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1};
+int test_track_simple[] = {1, 0, 1, 0};
 
 int defaultSpeed = 50;
 int stoptime = 0;
@@ -38,9 +40,9 @@ int pos = 0;
 // Tuning parameter:
 // Start with kp=1 and decrease value to stable system
 // Then increase ki and kd if needed
-double kp = 0.29;    // Proportional gain
-double ki = 0.027;  // Integral gain
-double kd = 0;      // Derivative gain *************************** possible delete
+double kp = 0.29;  // Proportional gain
+double ki = 0.027; // Integral gain
+double kd = 0;     // Derivative gain *************************** possible delete
 
 // Initialize PID components to 0
 double P = 0; // Proportional component of the control output
@@ -53,6 +55,7 @@ int smallError = defaultSpeed * 0.5; // Need to calibrate this parameter
 int mediumError = defaultSpeed * 1;  // Need to calibrate this parameter
 int bigError = defaultSpeed * 2.2;   // Need to calibrate this parameter
 bool stopped = false;
+bool skip_line = false;
 
 int lastError = 0;
 int lastLineSignal = 0;
@@ -187,6 +190,19 @@ void sprint(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
     motorL->run(RELEASE);
 }
 
+void ignore_stop_line(int duration)
+{
+    for (int i = 0; i < duration / 10; i++) // One iteration is 10ms
+    {
+        error = getError();
+        if (error == 1 || error == 2 || error == 3)
+        {
+            continue;
+        }
+        PID_line_tracking();
+    }
+}
+
 // Function to get the error from the line-following sensors (0-2).
 int getError()
 {
@@ -272,9 +288,6 @@ void PID_line_tracking()
     // Combine all components to get the PID output
     double speedChange = P * kp + I * ki + D * kd; // calculate the correction;
 
-    /*  Serial.print(speedChange);
-    Serial.print("\t"); */
-
     // Apply PID output to control the motors
     motorL->run(FORWARD);
     motorR->run(FORWARD);
@@ -323,24 +336,24 @@ void task_1()
     {
         left_Track_to_Can(motorR, motorL);
         delay(1000);
-        // full_arm_movement(motorArm, servoArm, min_pos, max_pos);
-        // delay(1000);
+        full_arm_movement(motorArm, servoArm, min_pos, max_pos);
+        delay(1000);
         left_Can_to_Track(motorR, motorL);
     }
     else
     {
         right_Track_to_Can(motorR, motorL);
         delay(1000);
-        // full_arm_movement(motorArm, servoArm, min_pos, max_pos);
-        // delay(1000);
+        full_arm_movement(motorArm, servoArm, min_pos, max_pos);
+        delay(1000);
         right_Can_to_Track(motorR, motorL);
     }
 
-    motorL->run(FORWARD);
-    motorR->run(FORWARD);
-    motorL->setSpeed(FAST_SPEED);
-    motorR->setSpeed(FAST_SPEED);
-    delay(1200); // Hier noch bearbeiten, dass der Bot nach vorne fährt aber trotzdem den PID benutzt aber die Stopplinie ignoriert
+    // motorL->run(FORWARD);
+    // motorR->run(FORWARD);
+    // motorL->setSpeed(FAST_SPEED);
+    // motorR->setSpeed(FAST_SPEED);
+    ignore_stop_line(1200);
     can_counter++;
 }
 
@@ -402,7 +415,7 @@ void setup()
 
 void loop()
 {
-
+    
     lastError = error;
     error = getError();
 
