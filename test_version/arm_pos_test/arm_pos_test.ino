@@ -4,7 +4,7 @@
 #include <Servo.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////
-// Set pin
+// TEST POSITION ARM TEST
 #define R_S A0  // Infrared sensor Right
 #define CR_S A1 // Infrared sensor Center Right
 #define CL_S A2 // Infrared sensor Center Left
@@ -329,7 +329,7 @@ void task_1()
     {
         left_Track_to_Can(motorR, motorL);
         delay(1000);
-        full_arm_movement(motorArm, servoArm, min_pos, max_pos);
+        full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
         delay(1000);
         left_Can_to_Track(motorR, motorL);
     }
@@ -337,7 +337,7 @@ void task_1()
     {
         right_Track_to_Can(motorR, motorL);
         delay(1000);
-        full_arm_movement(motorArm, servoArm, min_pos, max_pos);
+        full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
         delay(1000);
         right_Can_to_Track(motorR, motorL);
     }
@@ -389,12 +389,8 @@ void driveUntilSignalChange()
 
 void setup()
 {
-    pinMode(R_S, INPUT);
-    pinMode(CR_S, INPUT);
-    pinMode(CL_S, INPUT);
-    pinMode(L_S, INPUT);
-
-    // Serial.begin(9600);
+    Serial.begin(9600);
+    Serial.write("CONNECTED\n");
 
     AFMS.begin();
     motorR->setSpeed(defaultSpeed);
@@ -407,29 +403,6 @@ void setup()
 
 void loop()
 {
-
-    lastError = error;
-    error = getError();
-
-    if (error == 1 && checkStop())
-    { // Task 1, but check 2 times
-        task_1();
-        //   stopped = true;
-        driveUntilSignalChange();
-    }
-    else if (error == 2 && checkStop())
-    { // Task 2, but check 2 times
-        task_2();
-        //    stopped = true;
-        driveUntilSignalChange();
-    }
-    else if (error == 3 && lastError == error)
-    { // Stop, but check 2 times
-        motorR->setSpeed(0);
-        motorL->setSpeed(0);
-    }
-    else
-    { // Proceed with line tracking
-        PID_line_tracking();
-    }
+    full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
+    // arm_down(servoArm,180,110);
 }
