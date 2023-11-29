@@ -27,8 +27,8 @@ int stoptime = 0;
 int can_counter = 0;
 
 // Servo code
-int pos_unten = 180;
-int pos_oben = 95;
+int pos_unten = 163;
+int pos_oben = 70;
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // PID Controller
@@ -76,7 +76,7 @@ void arm_up(Servo servo, int unten, int oben)
     for (int pos = unten; pos >= oben; pos -= 1)
     { 
         servo.write(pos); // tell servo to go to position in variable 'pos'
-        delay(20);        // waits 15ms for the servo to reach the position
+        delay(3);        // waits 15ms for the servo to reach the position
         Serial.write(servoArm.read());
         Serial.write("\n");
     }
@@ -86,7 +86,7 @@ void arm_down(Servo servo, int unten, int oben)
     for (int pos = oben; pos <= unten; pos += 1)
     {
         servo.write(pos);
-        delay(20);
+        delay(3);
         Serial.write(servoArm.read());
         Serial.write("\n");
     }
