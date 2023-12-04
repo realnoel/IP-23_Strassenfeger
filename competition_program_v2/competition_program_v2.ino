@@ -19,7 +19,7 @@
 // Hier ist die Strecke modelliert
 // Track 0 left - straight, 1 right - straight, numbers unequal to 0 or 1 belong to positions on the track
 int competition_track_part1[] = {0, 1, 0, 4, 0, 1, 0, 8, 9};
-int competition_track_part2[] = {10, 11, 12, 0, 1, 0, 8, 9, 18}
+int competition_track_part2[] = {10, 11, 12, 0, 1, 0, 8, 9, 18};
 
 // Track 0 left - straight, 1 right - straight
 //int competition_track_simple[] = {0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1};
@@ -273,7 +273,7 @@ void pos4_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
 ////////////////////////////////////////////////////////////////////////////
 // Kurve 2 und 4 doppelte Becher
 
-void pos8_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
+void curve_8_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
 {
     motorR->run(BACKWARD);
     motorL->run(BACKWARD);
@@ -285,7 +285,7 @@ void pos8_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
     motorL->run(RELEASE);
 }
 
-void pos8_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
+void curve_8_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
 {
     motorR->setSpeed(TRASH_SPEED);
     motorL->setSpeed(TRASH_SPEED);
@@ -303,7 +303,7 @@ void pos8_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
     motorL->run(RELEASE);
 }
 
-void left_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
+void curve_9_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
 {
     motorR->setSpeed(TRASH_SPEED);
     motorL->setSpeed(TRASH_SPEED);
@@ -321,7 +321,7 @@ void left_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
     motorL->run(RELEASE);
 }
 
-void left_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
+void curve_9_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
 {
     motorR->run(BACKWARD);
     motorL->run(BACKWARD);
@@ -567,14 +567,14 @@ void task_1()
     motorL->setSpeed(0);
     motorR->setSpeed(0);
 
-    if (competition_track[can_counter] == 0)
+    if (competition_track_part1[can_counter] == 0)
     {
         left_Track_to_Can(motorR, motorL);
         full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
         left_Can_to_Track(motorR, motorL);
         ignore_stop_line(1000);
     }
-    else if (competition_track[can_counter] == 4)
+    else if (competition_track_part1[can_counter] == 4)
     {
       pos4_Track_to_Can(motorR, motorL);
       full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
@@ -582,7 +582,6 @@ void task_1()
       ignore_stop_line(1500);
       arm_down_and_drive(servoArm, pos_unten, servoArm.read());
     } 
-    else if()
     else
     {
       right_Track_to_Can(motorR, motorL);
