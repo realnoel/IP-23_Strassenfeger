@@ -157,8 +157,11 @@ void full_arm_movement(Adafruit_DCMotor *motor, Servo servo, int unten, int oben
     trash_grap(motor);
     delay(100);
     arm_up(servo, unten, oben);
-    delay(1000);
-    // Becher leeren funktion hinzufügen
+    delay(1500);
+    arm_down(servo,oben+10,oben);
+    delay(250);
+    arm_up(servo,oben+10,oben);
+    delay(250);
     arm_down(servo, unten, oben);
     delay(100);
     trash_release(motor);
@@ -170,6 +173,19 @@ void initalize_arm(Servo servo, Adafruit_DCMotor *motor)
 {
     arm_down(servo, pos_unten, pos_unten);
     trash_release(motor);
+}
+
+void initalize_movement(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
+{
+    motorR->setSpeed(TRASH_SPEED);
+    motorL->setSpeed(TRASH_SPEED);
+
+    motorR->run(FORWARD);
+    motorL->run(FORWARD);
+    delay(1000);
+
+    motorR->run(RELEASE);
+    motorL->run(RELEASE);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -311,27 +327,29 @@ void curve_8_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
 
     motorR->run(BACKWARD);
     motorL->run(BACKWARD);
-    delay(1200);
-    motorR->run(BACKWARD);
-    motorL->run(FORWARD);
-    delay(210);
+    delay(1225);
+    motorR->run(FORWARD);
+    motorL->run(BACKWARD);
+    delay(280);
     motorR->run(FORWARD);
     motorL->run(FORWARD);
-    delay(700);
+    delay(450);
     motorR->run(RELEASE);
+    motorL->run(RELEASE);
 }
-   
+
 void curve_8_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
 {
     motorR->run(BACKWARD);
     motorL->run(BACKWARD);
     delay(300);
-    motorR->run(FORWARD);
-    motorL->run(BACKWARD);
-    delay(270);
+    motorR->run(BACKWARD);
+    motorL->run(FORWARD);
+    delay(275);
     motorR->run(RELEASE);
     motorL->run(RELEASE);
 }
+
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -448,7 +466,21 @@ void open_gate(Adafruit_DCMotor *motorGate)
     delay(1500);
     motorGate->run(RELEASE);
 
-    delay(5000);
+    motorL->setSpeed(244);
+    motorR->setSpeed(244);
+
+    for (int i = 0; i < 1000; i++) 
+    {
+      motorL->run(BACKWARD);
+      motorR->run(BACKWARD);
+      delay(10);
+      motorL->run(FORWARD);
+      motorR->run(FORWARD);
+      delay(10);
+    }
+
+    motorL->setSpeed(TRASH_SPEED);
+    motorR->setSpeed(TRASH_SPEED);
 
     motorGate->run(FORWARD);
     delay(1700);
@@ -795,6 +827,9 @@ void deponie()
     open_gate(motorGate);
     deponie_gewesen = true;
 
+    motorL->setSpeed(TRASH_SPEED);
+    motorR->setSpeed(TRASH_SPEED);
+
     arm_down(servoArm, pos_unten, pos_oben);
     trash_release(motorArm);
 
@@ -848,6 +883,7 @@ void setup()
 
     servoArm.attach(10);
     initalize_arm(servoArm, motorArm); // ARM DOWN, GRIPPER OPEN
+    initalize_movement(motorR, motorL);
 }
 
 ///////////////////////////////////////////////////////////////////////////
