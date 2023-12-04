@@ -15,17 +15,15 @@
 #define FAST_SPEED 244
 // Benutze TRASH_SPEED wenn der Roboter auf Tonnen zufährt
 #define TRASH_SPEED 75
-#define DEPONIE_SPEED 30
 
 // Hier ist die Strecke modelliert
 // Track 0 left - straight, 1 right - straight, numbers unequal to 0 or 1 belong to positions on the track
-int competition_track_part1[] = {1, 0, 8, 7};
-int competition_track_part2[] = {};
-
+int competition_track_part1[] = {0, 1, 0, 4, 0, 1, 0, 8, 9};
+int competition_track_part2[] = {10, 11, 12, 0, 1, 0, 8, 9, 18}
 
 // Track 0 left - straight, 1 right - straight
-// int competition_track_simple[] = {0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1};
-// int competition_track[] = {0,4};
+//int competition_track_simple[] = {0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1};
+//int competition_track[] = {0,4};
 
 int defaultSpeed = 70;
 int stoptime = 0;
@@ -45,13 +43,14 @@ int pos_oben = 0;
 // Then increase ki and kd if needed
 // double kp = 0.22;  // Proportional gain
 // double ki = 0.022; // Integral gain
-// double kd = 0;    // Derivative gain * possible delete
-double kp = 0.3;  // Proportional gain
-double ki = 0.01; // Integral gain
-double kd = 0;     // Derivative gain * possible delete
+// double kd = 0;    // Derivative gain *** possible delete
+double kp = 0.34;    // Proportional gain
+double ki = 0.008;  // Integral gain
+double kd = 0;    // Derivative gain *** possible delete
 
 //
 bool deponie_gewesen = false;
+
 
 // Initialize PID components to 0
 double P = 0; // Proportional component of the control output
@@ -61,8 +60,8 @@ double D = 0; // Derivative component of the control output
 int error;
 int previousError = 0;
 int smallError = defaultSpeed * 0.50; // Need to calibrate this parameter
-int mediumError = defaultSpeed * 1.0; // Need to calibrate this parameter
-int bigError = defaultSpeed * 2.2;    // Need to calibrate this parameter
+int mediumError = defaultSpeed * 1.0;  // Need to calibrate this parameter
+int bigError = defaultSpeed * 2.2;   // Need to calibrate this parameter
 bool stopped = false;
 bool skip_line = false;
 
@@ -76,10 +75,9 @@ int rightSpeed = 0;
 
 // Hier werden die Motoren initalisiert
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
-Adafruit_DCMotor *motorL = AFMS.getMotor(1);
 Adafruit_DCMotor *motorR = AFMS.getMotor(2);
+Adafruit_DCMotor *motorL = AFMS.getMotor(1);
 Adafruit_DCMotor *motorArm = AFMS.getMotor(3);
-Adafruit_DCMotor *motorGate = AFMS.getMotor(4);
 
 Servo servoArm;
 
@@ -89,7 +87,7 @@ Servo servoArm;
 void arm_up(Servo servo, int unten, int oben)
 {
     for (int pos = unten; pos >= oben; pos -= 1)
-    {
+    { 
         servo.write(pos); // tell servo to go to position in variable 'pos'
         delay(10);        // waits 15ms for the servo to reach the position
         Serial.write(servoArm.read());
@@ -106,15 +104,15 @@ void arm_down(Servo servo, int unten, int oben)
     {
         if (pos < unten - 20)
         {
-            servo.write(pos);
-            delay(10);
+          servo.write(pos);
+          delay(10);
         }
         else
         {
-            servo.write(pos);
-            delay(20);
+          servo.write(pos);
+          delay(20);
         }
-
+        
         Serial.write(servoArm.read());
         Serial.write("\n");
     }
@@ -122,7 +120,7 @@ void arm_down(Servo servo, int unten, int oben)
 
 void arm_down_and_drive(Servo servo, int unten, int oben)
 {
-    for (int pos = oben; pos <= unten; pos += 1)
+  for (int pos = oben; pos <= unten; pos += 1)
     {
         servo.write(pos);
         delay(5);
@@ -148,7 +146,7 @@ void trash_release(Adafruit_DCMotor *motor)
     motor->run(RELEASE);
 }
 
-// Diese Funktion führt einen kompletten Greifprozess aus
+// Diese Funktion führt einen kompletten Greifprozess aus 
 // Zugreifen -> Arm hoch -> Arm runter -> Arm öffnen
 // PRE: motor: anzusteuernder Motor, servo: anzusteuernder Servo
 // PRE: unten: Startposition des Arms in Grad, oben: Endposition des Arms in Grad
@@ -157,11 +155,8 @@ void full_arm_movement(Adafruit_DCMotor *motor, Servo servo, int unten, int oben
     trash_grap(motor);
     delay(100);
     arm_up(servo, unten, oben);
-    delay(1500);
-    arm_down(servo,oben+10,oben);
-    delay(250);
-    arm_up(servo,oben+10,oben);
-    delay(250);
+    delay(1000);
+    // Becher leeren funktion hinzufügen
     arm_down(servo, unten, oben);
     delay(100);
     trash_release(motor);
@@ -238,6 +233,7 @@ void right_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
     motorL->run(RELEASE);
 }
 
+
 ////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////
@@ -277,7 +273,7 @@ void pos4_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
 ////////////////////////////////////////////////////////////////////////////
 // Kurve 2 und 4 doppelte Becher
 
-void curve_7_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
+void pos8_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
 {
     motorR->run(BACKWARD);
     motorL->run(BACKWARD);
@@ -289,7 +285,7 @@ void curve_7_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
     motorL->run(RELEASE);
 }
 
-void curve_7_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
+void pos8_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
 {
     motorR->setSpeed(TRASH_SPEED);
     motorL->setSpeed(TRASH_SPEED);
@@ -302,12 +298,12 @@ void curve_7_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
     delay(210);
     motorR->run(FORWARD);
     motorL->run(FORWARD);
-    delay(700);
+    delay(900);
     motorR->run(RELEASE);
     motorL->run(RELEASE);
 }
 
-void curve_8_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
+void left_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
 {
     motorR->setSpeed(TRASH_SPEED);
     motorL->setSpeed(TRASH_SPEED);
@@ -317,110 +313,7 @@ void curve_8_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
     delay(1225);
     motorR->run(FORWARD);
     motorL->run(BACKWARD);
-    delay(280);
-    motorR->run(FORWARD);
-    motorL->run(FORWARD);
-    delay(450);
-    motorR->run(RELEASE);
-    motorL->run(RELEASE);
-}
-
-void curve_8_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
-{
-    motorR->run(BACKWARD);
-    motorL->run(BACKWARD);
-    delay(300);
-    motorR->run(BACKWARD);
-    motorL->run(FORWARD);
-    delay(275);
-    motorR->run(RELEASE);
-    motorL->run(RELEASE);
-}
-
-////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////////
-// Kurve 3
-
-void curve_9_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
-{
-    motorR->setSpeed(TRASH_SPEED);
-    motorL->setSpeed(TRASH_SPEED);
-
-    motorR->run(FORWARD);
-    motorL->run(BACKWARD);
-    delay(130);
-    motorR->run(BACKWARD);
-    motorL->run(BACKWARD);
-    delay(750);
-    motorR->run(FORWARD);
-    motorL->run(BACKWARD);
-    delay(195);
-    motorR->run(FORWARD);
-    motorL->run(FORWARD);
-    delay(350);
-    motorR->run(RELEASE);
-    motorL->run(RELEASE);
-}
-
-void curve_9_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
-{
-    motorR->run(BACKWARD);
-    motorL->run(BACKWARD);
-    delay(600);
-    motorR->run(BACKWARD);
-    motorL->run(FORWARD);
-    delay(220);
-    motorR->run(RELEASE);
-    motorL->run(RELEASE);
-}
-
-void curve_10_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
-{
-    motorR->setSpeed(TRASH_SPEED);
-    motorL->setSpeed(TRASH_SPEED);
-
-    motorR->run(BACKWARD);
-    motorL->run(FORWARD);
-    delay(200);
-    motorR->run(BACKWARD);
-    motorL->run(BACKWARD);
-    delay(1050);
-    motorR->run(BACKWARD);
-    motorL->run(FORWARD);
-    delay(325);
-    motorR->run(FORWARD);
-    motorL->run(FORWARD);
-    delay(200);
-    motorR->run(RELEASE);
-    motorL->run(RELEASE);
-}
-
-void curve_10_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
-{
-    arm_up(servoArm, pos_unten, pos_oben);
-
-    motorR->run(FORWARD);
-    motorL->run(BACKWARD);
-    delay(350);
-
-    motorR->run(RELEASE);
-    motorL->run(RELEASE);
-
-    arm_down(servoArm, pos_unten, pos_oben);
-}
-
-void curve_11_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
-{
-    motorR->setSpeed(TRASH_SPEED);
-    motorL->setSpeed(TRASH_SPEED);
-
-    motorR->run(BACKWARD);
-    motorL->run(BACKWARD);
-    delay(1100);
-    motorR->run(FORWARD);
-    motorL->run(BACKWARD);
-    delay(150);
+    delay(225);
     motorR->run(FORWARD);
     motorL->run(FORWARD);
     delay(535);
@@ -428,7 +321,7 @@ void curve_11_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
     motorL->run(RELEASE);
 }
 
-void curve_11_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
+void left_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
 {
     motorR->run(BACKWARD);
     motorL->run(BACKWARD);
@@ -442,28 +335,49 @@ void curve_11_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
 
 ////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////
+// Kurve 3 doppelte Becher
 
-///////////////////////////////////////////////////////////////////////////
-// Ausladen Deponie
-void open_gate(Adafruit_DCMotor *motorGate)
+
+////////////////////////////////////////////////////////////////////////////
+// Becher auf Position 8
+
+void pos8_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
 {
-    motorGate->setSpeed(200);
-    motorGate->run(BACKWARD);
-    delay(1500);
-    motorGate->run(RELEASE);
-
-    delay(5000);
-
-    motorGate->run(FORWARD);
-    delay(1700);
-    motorGate->run(RELEASE);
-
-    deponie_gewesen = true;
-    can_counter = 0;
+    motorR->run(BACKWARD);
+    motorL->run(BACKWARD);
+    delay(300);
+    motorR->run(FORWARD);
+    motorL->run(BACKWARD);
+    delay(270);
+    motorR->run(RELEASE);
+    motorL->run(RELEASE);
 }
 
+void pos8_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
+{
+    motorR->setSpeed(TRASH_SPEED);
+    motorL->setSpeed(TRASH_SPEED);
+
+    motorR->run(BACKWARD);
+    motorL->run(BACKWARD);
+    delay(1200);
+    motorR->run(BACKWARD);
+    motorL->run(FORWARD);
+    delay(210);
+    motorR->run(FORWARD);
+    motorL->run(FORWARD);
+    delay(900);
+    motorR->run(RELEASE);
+    motorL->run(RELEASE);
+}
 ///////////////////////////////////////////////////////////////////////////
-// Schwarzen-Balken ignorieren und weiter mit PID-Controller fahren
+
+///////////////////////////////////////////////////////////////////////////
+// AUsladen Deponie
+
+///////////////////////////////////////////////////////////////////////////
+
 void ignore_stop_line(int duration)
 {
     for (int i = 0; i < duration / 10; i++) // One iteration is 10ms
@@ -472,7 +386,6 @@ void ignore_stop_line(int duration)
         PID_line_tracking();
     }
 }
-
 int getError_ignore_stop_line()
 {
     // Read the sensor values (0 for dark, 1 for bright)
@@ -527,9 +440,6 @@ int getError_ignore_stop_line()
     return 0; // Default case: Unknown/error state. Proceed with line tracking
 }
 
-///////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
 // Function to get the error from the line-following sensors (0-2).
 int getError()
 {
@@ -596,10 +506,7 @@ int getError()
     }
     return 0; // Default case: Unknown/error state. Proceed with line tracking
 }
-///////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////
-// PID Controller
 void PID_line_tracking()
 {
     // stopped = false;
@@ -642,8 +549,6 @@ void PID_line_tracking()
     delay(10);
 }
 
-///////////////////////////////////////////////////////////////////////////
-
 bool checkStop()
 {
     if (lastError == error /* && stopped == false*/)
@@ -653,9 +558,7 @@ bool checkStop()
     return false;
 }
 
-///////////////////////////////////////////////////////////////////////////
-
-void becher_greifen()
+void task_1()
 {
     stopped = true;
 
@@ -664,103 +567,32 @@ void becher_greifen()
     motorL->setSpeed(0);
     motorR->setSpeed(0);
 
-    if (deponie_gewesen == false)
+    if (competition_track[can_counter] == 0)
     {
-        if (competition_track_part1[can_counter] == 0)
-        {
-            left_Track_to_Can(motorR, motorL);
-            full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
-            left_Can_to_Track(motorR, motorL);
-            ignore_stop_line(1000);
-        }
-        else if (competition_track_part1[can_counter] == 4)
-        {
-            pos4_Track_to_Can(motorR, motorL);
-            full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
-            pos4_Can_to_Track(motorR, motorL);
-            ignore_stop_line(1500);
-            arm_down_and_drive(servoArm, pos_unten, servoArm.read());
-        }
-        else if (competition_track_part1[can_counter] == 7)
-        {
-          curve_7_Track_to_Can(motorR, motorL);
-          full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
-          curve_7_Can_to_Track(motorR, motorL);
-          ignore_stop_line(2500);
-        }
-        else if (competition_track_part1[can_counter] == 8)
-        {
-          curve_8_Track_to_Can(motorR, motorL);
-          full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
-          curve_8_Can_to_Track(motorR, motorL);
-        }
-        else
-        {
-            right_Track_to_Can(motorR, motorL);
-            full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
-            right_Can_to_Track(motorR, motorL);
-            ignore_stop_line(1000);
-        }
+        left_Track_to_Can(motorR, motorL);
+        full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
+        left_Can_to_Track(motorR, motorL);
+        ignore_stop_line(1000);
     }
+    else if (competition_track[can_counter] == 4)
+    {
+      pos4_Track_to_Can(motorR, motorL);
+      full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
+      pos4_Can_to_Track(motorR, motorL);
+      ignore_stop_line(1500);
+      arm_down_and_drive(servoArm, pos_unten, servoArm.read());
+    } 
+    else if()
     else
     {
-        if (competition_track_part2[can_counter] == 0)
-        {
-            left_Track_to_Can(motorR, motorL);
-            full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
-            left_Can_to_Track(motorR, motorL);
-            ignore_stop_line(1000);
-        }
-        else if (competition_track_part2[can_counter] == 7)
-        {
-          curve_7_Track_to_Can(motorR, motorL);
-          full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
-          curve_7_Can_to_Track(motorR, motorL);
-          ignore_stop_line(2500);
-        }
-        else if (competition_track_part2[can_counter] == 8)
-        {
-          curve_8_Track_to_Can(motorR, motorL);
-          full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
-          curve_8_Can_to_Track(motorR, motorL);
-        }
-         else if (competition_track_part2[can_counter] == 9)
-        {
-          curve_9_Track_to_Can(motorR, motorL);
-          full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
-          curve_9_Can_to_Track(motorR, motorL);
-        }
-        else if (competition_track_part2[can_counter] == 10)
-        {
-          curve_10_Track_to_Can(motorR, motorL);
-          full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
-          curve_10_Can_to_Track(motorR, motorL);
-          ignore_stop_line(1750);
-        }
-        else if (competition_track_part2[can_counter] == 11)
-        {
-          curve_11_Track_to_Can(motorR, motorL);
-          full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
-          curve_11_Can_to_Track(motorR, motorL);
-          ignore_stop_line(1750);
-        }
-        else if (competition_track_part2[can_counter] == 18)
-        {
-
-        }
-        else
-        {
-            right_Track_to_Can(motorR, motorL);
-            full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
-            right_Can_to_Track(motorR, motorL);
-            ignore_stop_line(1000);
-        }
+      right_Track_to_Can(motorR, motorL);
+      full_arm_movement(motorArm, servoArm, pos_unten, pos_oben);
+      right_Can_to_Track(motorR, motorL);
+      ignore_stop_line(1000);
     }
-
+    
     can_counter++;
 }
-
-///////////////////////////////////////////////////////////////////////////
 
 void deponie()
 {
@@ -770,53 +602,39 @@ void deponie()
     motorL->run(RELEASE);
     motorR->run(RELEASE);
 
-    arm_up(servoArm, pos_unten, pos_oben);
-    trash_grap(motorArm);
-    delay(100);
-
     motorL->setSpeed(TRASH_SPEED);
     motorR->setSpeed(TRASH_SPEED);
 
+    motorR->run(BACKWARD);
+    motorL->run(FORWARD);
+    delay(330);
+
+    motorL->run(FORWARD);
+    motorR->run(FORWARD);
+    delay(400);
+
     motorR->run(FORWARD);
     motorL->run(BACKWARD);
-    delay(110);
-
-    motorL->run(FORWARD);
-    motorR->run(FORWARD);
-    delay(750);
-
-    motorR->run(BACKWARD);
-    motorL->run(FORWARD);
-    delay(115);
+    delay(330);
 
     motorL->run(BACKWARD);
     motorR->run(BACKWARD);
-    delay(290);
+    delay(200);
 
-    motorL->run(RELEASE);
-    motorR->run(RELEASE);
-
-    open_gate(motorGate);
-    deponie_gewesen = true;
-
-    arm_down(servoArm, pos_unten, pos_oben);
-    trash_release(motorArm);
+    // open_gate()
+    // deponie = true
 
     motorR->run(BACKWARD);
     motorL->run(FORWARD);
-    delay(25);
+    delay(200);
 
-    motorL->run(FORWARD);
-    motorR->run(FORWARD);
-    delay(1000);
+    motorL->run(BACKWARD);
+    motorR->run(BACKWARD);
+    delay(500);
 
-    motorL->run(RELEASE);
-    motorR->run(RELEASE);
+    ignore_stop_line(4000);
 
-    ignore_stop_line(750);
 }
-
-///////////////////////////////////////////////////////////////////////////
 
 void driveUntilSignalChange()
 {
@@ -829,12 +647,13 @@ void driveUntilSignalChange()
 
         // Set the motor speeds
         motorL->setSpeed(SLOW_SPEED); // drive slowly straight until signal changes
-        motorR->setSpeed(SLOW_SPEED); // drive slowly straight until signal changes}
-        return;
+        motorR->setSpeed(SLOW_SPEED); // drive slowly straight until signal changes
     }
+    return;
 }
 
-///////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+// Main code: functions setup() and loop()
 
 void setup()
 {
@@ -854,36 +673,23 @@ void setup()
     initalize_arm(servoArm, motorArm); // ARM DOWN, GRIPPER OPEN
 }
 
-///////////////////////////////////////////////////////////////////////////
+void loop() {
 
-void loop()
-{
+  lastError = error;
+  error = getError();
 
-    lastError = error;
-    error = getError();
-
-    if (error == 1 && checkStop())
-    { // Task 1, but check 2 times
-        becher_greifen();
-        //   stopped = true;
-        driveUntilSignalChange();
-    }
-    else if (error == 2 && checkStop())
-    { // Task 2, but check 2 times
-        deponie();
-        //    stopped = true;
-        driveUntilSignalChange();
-    }
-    else if (error == 3 && lastError == error)
-    { // Stop, but check 2 times
-        motorR->setSpeed(0);
-        motorL->setSpeed(0);
-    }
-    else
-    { // Proceed with line tracking
-        PID_line_tracking();
-    }
+  if (error == 1 && checkStop()) {  // Task 1, but check 2 times
+    task_1();
+    //   stopped = true;
+    driveUntilSignalChange();
+  } else if (error == 2 && checkStop()) {  // Task 2, but check 2 times
+    deponie();
+    //    stopped = true;
+    driveUntilSignalChange();
+  } else if (error == 3 && lastError == error) {  // Stop, but check 2 times
+    motorR->setSpeed(0);
+    motorL->setSpeed(0);
+  } else {  // Proceed with line tracking
+    PID_line_tracking();
+  }
 }
-
-///////////////////////////////////////////////////////////////////////////
-
