@@ -157,8 +157,11 @@ void full_arm_movement(Adafruit_DCMotor *motor, Servo servo, int unten, int oben
     trash_grap(motor);
     delay(100);
     arm_up(servo, unten, oben);
-    delay(1000);
-    // Becher leeren funktion hinzufügen
+    delay(1500);
+    arm_down(servo,oben+10,oben);
+    delay(250);
+    arm_up(servo,oben+10,oben);
+    delay(250);
     arm_down(servo, unten, oben);
     delay(100);
     trash_release(motor);
@@ -311,25 +314,25 @@ void curve_8_Track_to_Can(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
 
     motorR->run(BACKWARD);
     motorL->run(BACKWARD);
-    delay(1200);
-    motorR->run(BACKWARD);
-    motorL->run(FORWARD);
-    delay(210);
+    delay(1225);
+    motorR->run(FORWARD);
+    motorL->run(BACKWARD);
+    delay(280);
     motorR->run(FORWARD);
     motorL->run(FORWARD);
-    delay(700);
+    delay(450);
     motorR->run(RELEASE);
     motorL->run(RELEASE);
 }
-   
+
 void curve_8_Can_to_Track(Adafruit_DCMotor *motorR, Adafruit_DCMotor *motorL)
 {
     motorR->run(BACKWARD);
     motorL->run(BACKWARD);
     delay(300);
-    motorR->run(FORWARD);
-    motorL->run(BACKWARD);
-    delay(270);
+    motorR->run(BACKWARD);
+    motorL->run(FORWARD);
+    delay(275);
     motorR->run(RELEASE);
     motorL->run(RELEASE);
 }
