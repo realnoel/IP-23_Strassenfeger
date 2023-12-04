@@ -128,7 +128,7 @@ void arm_down_and_drive(Servo servo, int unten, int oben)
 
 // Diese Funktion schliesst den Greifer
 // PRE: anzusteuernder Motor
-void trash_grap(Adafruit_DCMotor *motor)
+void trash_grab(Adafruit_DCMotor *motor)
 {
     motor->run(FORWARD);
     delay(1000);
@@ -149,7 +149,7 @@ void trash_release(Adafruit_DCMotor *motor)
 // PRE: unten: Startposition des Arms in Grad, oben: Endposition des Arms in Grad
 void full_arm_movement(Adafruit_DCMotor *motor, Servo servo, int unten, int oben)
 {
-    trash_grap(motor);
+    trash_grab(motor);
     delay(100);
     arm_up(servo, unten, oben);
     delay(1000);
